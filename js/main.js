@@ -6,7 +6,9 @@ const userOneVid = document.getElementById("user-1");
 const userTwoVid = document.getElementById("user-2");
 const offerSDP = document.getElementById("offer-sdp");
 const answerSDP = document.getElementById("answer-sdp");
-const createOfferBTN = document.getElementById("create-offer").addEventListener("click", createOffer)
+const createOfferBTN = document.getElementById("create-offer").addEventListener("click", createOffer);
+const createAnswerBTN = document.getElementById("create-answer").addEventListener("click", createAnswer);
+const addAnswerBTN = document.getElementById("add-answer").addEventListener("click", addAnswer);
 
 let googleSTUN = {
     iceServers: [
@@ -70,5 +72,24 @@ async function createAnswer() {
         if (event.candidate) answerSDP.value = JSON.stringify(peerConnection.localDescription);
     }
 
-    
+    let offer = offerSDP.value;
+    if (!offer) return alert("Retrieve offer from peer first!");
+
+    offer = JSON.parse(offer);
+    await peerConnection.setRemoteDescription(offer);
+
+    let answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+
+    answerSDP.value = JSON.stringify(answer);
+
 }
+
+async function addAnswer() {
+    let answer = answerSDP.value
+    if (!answer) return alert("Retrieve Answer from peer");
+    answer = JSON.parse(answer);
+    if (!peerConnection.currentRemoteDescription) {
+        peerConnection.setRemoteDescription(answer);
+    }
+} 
